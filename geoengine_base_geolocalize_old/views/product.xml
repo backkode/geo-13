@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="product_template_form_view_inherit" model="ir.ui.view">
+            <field name="name">product.template.product.website.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+                        <field name="arch" type="xml">
+                <xpath expr="//notebook[last()]" position="inside">
+                    <page string="Geo Location" name="geo_location">
+                        <!-- something to do here -->
+                        <div class="o_address_format" name="div_address">
+                            <field name="street" placeholder="Street..." class="o_address_street"/>
+                            <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                            <field name="city" placeholder="City" class="o_address_city"/>
+                            <field name="state_id" class="o_address_state" placeholder="State" options='{"no_open": True}' context="{'country_id': country_id, 'zip': zip}"/>
+                            <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                            <field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
+                        </div>
+                        <group colspan="2" col="2">
+                            <separator string="Geolocation" colspan="2"/>
+                        </group>
+                            <button
+                                string="Geolocate"
+                                name="geo_localize"
+                                colspan="2"
+                                action="get_point"
+                                icon="fa-check"
+                                type="object"/>
+                            <div>
+                                <span class="oe_inline"> ( On  </span>
+                                <field name="date_localization" nolabel="1" class="oe_inline"/>
+                                <span> : Lat : </span>
+                                <field name="partner_latitude" nolabel="1" class="oe_inline"/>
+                                <span> ;  Long:  </span>
+                                <field name="partner_longitude" nolabel="1" class="oe_inline"/>
+                                <span>) </span>
+                            </div>
+                            <field
+                                name="geo_multi_polygon"
+                                widget="geo_edit_map" readonly="0"
+                                groups="base_geoengine.group_geoengine_user,base_geoengine.group_geoengine_admin"
+                            />
+
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+
+
+
+    <record id="view_products_google_places_autocomplete_extended_inherit" model="ir.ui.view">
+        <field name="name">Products Google Places Autocomplete Extended</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="priority">1100</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="options">{
+                    'fillfields': {
+                        'address': {
+                            'street_name': 'route',
+                            'street_number': 'street_number',
+                            'street2': ['administrative_area_level_3', 'administrative_area_level_4', 'administrative_area_level_5'],
+                            'city': 'locality',
+                            'zip': 'postal_code',
+                            'state_id': 'administrative_area_level_1',
+                            'country_id': 'country'
+                        },
+                        'geolocation': {
+                            'partner_latitude': 'latitude',
+                            'partner_longitude': 'longitude'
+                        }
+                    }
+                }</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_template_view_map" model="ir.ui.view">
+        <field name="name">product.template.view.map</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <map res_partner="id">
+                <marker-popup>
+                    <field name="name" string="Name "/>
+                    <field name="contact_address_complete" string="Address "/>
+                </marker-popup>
+            </map>
+        </field>
+    </record>
+    <record id="view_product_template_google_map" model="ir.ui.view">
+            <field name="name">view.product.template.google_map</field>
+            <field name="model">product.template</field>
+            <field name="arch" type="xml">
+                <google_map class="o_res_partner_map" string="Google Map" lat="partner_latitude" lng="partner_longitude" >
+                    <field name="id"/>
+                    <field name="partner_latitude"/>
+                    <field name="partner_longitude"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click o_kanban_record_has_image_fill o_res_partner_kanban">
+                                <t t-if="!record.is_company.raw_value">
+                                    <t t-if="record.type.raw_value === 'delivery'" t-set="placeholder" t-value="'/base/static/img/truck.png'"/>
+                                    <t t-elif="record.type.raw_value === 'invoice'" t-set="placeholder" t-value="'/base/static/img/money.png'"/>
+                                    <t t-else="" t-set="placeholder" t-value="'/base/static/img/avatar_grey.png'"/>
+                                    <div class="o_kanban_image_fill_left d-none d-md-block" t-attf-style="background-image:url('#{kanban_image('product.template', 'image_128', record.id.raw_value,  placeholder)}')">
+                                    </div>
+                                    <div class="o_kanban_image rounded-circle d-md-none" t-attf-style="background-image:url('#{kanban_image('product.template', 'image_128', record.id.raw_value,  placeholder)}')">
+                                    </div>
+                                </t>
+                                <t t-elif="record.image_128.raw_value">
+                                    <t t-set="placeholder" t-value="'/base/static/img/company_image.png'"/>
+                                    <div class="o_kanban_image_fill_left o_kanban_image_full" t-attf-style="background-image: url(#{kanban_image('product.template', 'image_128', record.id.raw_value, placeholder)})" role="img"/>
+                                </t>
+                                <div class="oe_kanban_details">
+                                    <strong class="o_kanban_record_title oe_partner_heading"><field name="display_name"/></strong>
+                                    <div class="o_kanban_tags_section oe_kanban_partner_categories"/>
+                                    <div class="oe_kanban_partner_links"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </google_map>
+            </field>
+        </record>
+
+    <record id="product.product_template_action" model="ir.actions.act_window">
+        <field name="name" >Products</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,tree,form,map,google_map</field>
+    </record>
+    <record id="sale.product_template_action" model="ir.actions.act_window">
+        <field name="name" >Products</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,tree,form,map,google_map</field>
+    </record>
+
+    </data>
+</odoo>
